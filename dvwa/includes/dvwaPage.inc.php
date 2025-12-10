@@ -17,18 +17,12 @@ if( !isset( $html ) ) {
 	$html = "";
 }
 
-// Valid security levels
-$security_levels = array('low', 'medium', 'high', 'impossible');
-if( !isset( $_COOKIE[ 'security' ] ) || !in_array( $_COOKIE[ 'security' ], $security_levels ) ) {
-	// Set security cookie to impossible if no cookie exists
-	if( in_array( $_DVWA[ 'default_security_level' ], $security_levels) ) {
-		dvwaSecurityLevelSet( $_DVWA[ 'default_security_level' ] );
-	} else {
-		dvwaSecurityLevelSet( 'impossible' );
-	}
-	// If the cookie wasn't set then the session flags need updating.
-	dvwa_start_session();
-}
+// Valid security levels - Force to 'low' only
+$security_levels = array('low');
+// Always set security level to 'low' regardless of cookie or config
+dvwaSecurityLevelSet( 'low' );
+// If the cookie wasn't set then the session flags need updating.
+dvwa_start_session();
 
 /*
  * This function is called after login and when you change the security level.
@@ -200,19 +194,8 @@ function dvwaThemeGet() {
 function dvwaSecurityLevelGet() {
 	global $_DVWA;
 
-	// If there is a security cookie, that takes priority.
-	if (isset($_COOKIE['security'])) {
-		return $_COOKIE[ 'security' ];
-	}
-
-	// If not, check to see if authentication is disabled, if it is, use
-	// the default security level.
-	if (array_key_exists("disable_authentication", $_DVWA) && $_DVWA['disable_authentication']) {
-		return $_DVWA[ 'default_security_level' ];
-	}
-
-	// Worse case, set the level to impossible.
-	return 'impossible';
+	// Force security level to 'low' only - ignore cookie and config
+	return 'low';
 }
 
 function dvwaSecurityLevelSet( $pSecurityLevel ) {
